@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprite Atlas Example - Multiple Sprites on One Sheet</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #2c3e50;
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #bdc3c7;
+      margin-bottom: 30px;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      border: 3px solid #34495e;
+      background: #ecf0f1;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .controls {
+      background: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .sprite-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #3498db;
+      color: white;
+    }
+
+    button:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    button.active {
+      background: #e74c3c;
+    }
+
+    .info-section {
+      background: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #2ecc71;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sprite Atlas Example</h1>
+    <p class="subtitle">Managing multiple sprites from a single texture atlas</p>
+
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+
+    <div class="controls">
+      <h3>Select Character:</h3>
+      <div class="sprite-buttons" id="spriteButtons"></div>
+      <button onclick="stopAll()" style="background: #95a5a6;">Stop All</button>
+    </div>
+
+    <div class="info-section">
+      <h3>How It Works</h3>
+      <ul class="feature-list">
+        <li><strong>Auto-Detection:</strong> Frame dimensions are automatically calculated from image size</li>
+        <li><strong>Sprite Regions:</strong> Define multiple sprites in one atlas using x, y coordinates</li>
+        <li><strong>Easy Management:</strong> Name and switch between sprites easily</li>
+        <li><strong>Efficient:</strong> Single image load for all sprites</li>
+      </ul>
+
+      <h3>Example: Auto-Detecting Dimensions</h3>
+      <div class="code-block">// Auto-detect frame size from a 4x3 sprite sheet (12 frames)
+const sprite = new SpriteSheet({
+  canvas: '#myCanvas',
+  image: 'characters.png',
+  frames: 12,  // Total frames
+  rows: 4,     // 4 rows
+  columns: 3   // 3 columns
+  // frameWidth and frameHeight calculated automatically!
+});
+
+await sprite.ready();
+console.log(sprite.getInfo()); // See detected dimensions
+sprite.play();</div>
+
+      <h3>Example: Using Sprite Atlas (Multiple Characters on One Sheet)</h3>
+      <div class="code-block">import { SpriteAtlas } from './src/SpriteSheet.js';
+
+// Create atlas from a single image containing all characters
+const atlas = new SpriteAtlas('#canvas', 'game-sprites.png');
+await atlas.ready();
+
+// Define different character regions in the atlas
+atlas
+  .define('player', {
+    x: 0, y: 0,           // Position in atlas
+    width: 192, height: 32, // Region size
+    frames: 6, rows: 1    // Animation frames
+  })
+  .define('enemy1', {
+    x: 0, y: 32,          // Below player
+    width: 128, height: 32,
+    frames: 4, rows: 1
+  })
+  .define('enemy2', {
+    x: 0, y: 64,          // Below enemy1
+    width: 160, height: 32,
+    frames: 5, rows: 1
+  })
+  .define('powerup', {
+    x: 0, y: 96,
+    width: 128, height: 32,
+    frames: 4, rows: 1,
+    framerate: 150        // Slower animation
+  });
+
+// Play any sprite by name
+await atlas.play('player');
+
+// Switch sprites
+document.getElementById('btn').onclick = () => {
+  atlas.play('enemy1');
+};</div>
+
+      <h3>Example: Passing Specific Dimensions</h3>
+      <div class="code-block">// Method 1: Specify exact frame dimensions
+const sprite1 = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite.png',
+  frameWidth: 32,    // Exact width
+  frameHeight: 32,   // Exact height
+  frames: 8
+});
+
+// Method 2: Let it calculate from rows/columns
+const sprite2 = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite.png',
+  frames: 12,
+  rows: 3,           // Image will be divided into 3 rows
+  columns: 4         // and 4 columns
+});
+
+// Method 3: Use region for part of a larger atlas
+const sprite3 = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'atlas.png',
+  regionX: 100,      // Start at x=100 in the image
+  regionY: 200,      // Start at y=200 in the image
+  regionWidth: 256,  // Use this much width
+  regionHeight: 64,  // Use this much height
+  frames: 8,
+  rows: 2
+});</div>
+
+      <h3>Example: Get Image Dimensions on Load</h3>
+      <div class="code-block">const sprite = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite.png',
+  frames: 8,
+  rows: 2,
+  onImageLoad: (info) => {
+    console.log('Image loaded!', info);
+    // {
+    //   imageWidth: 256,
+    //   imageHeight: 64,
+    //   frameWidth: 32,   (calculated)
+    //   frameHeight: 32,  (calculated)
+    //   rows: 2,
+    //   columns: 4,       (calculated)
+    //   totalFrames: 8
+    // }
+  }
+});
+
+await sprite.ready();
+
+// Or get info anytime
+const info = sprite.getInfo();
+console.log(info);</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { SpriteAtlas } from '../src/SpriteSheet.js';
+
+    // Create placeholder atlas with multiple sprites
+    function createMultiSpriteAtlas() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+
+      const sprites = [
+        { name: 'Hero', color: '#3498db', y: 0 },
+        { name: 'Goblin', color: '#e74c3c', y: 80 },
+        { name: 'Knight', color: '#2ecc71', y: 160 },
+        { name: 'Wizard', color: '#9b59b6', y: 240 },
+        { name: 'Dragon', color: '#e67e22', y: 320 }
+      ];
+
+      sprites.forEach(sprite => {
+        // Draw 4 animation frames for each sprite
+        for (let i = 0; i < 4; i++) {
+          const x = i * 80;
+          const size = 60 + Math.sin(i * Math.PI / 2) * 10;
+          const offset = (80 - size) / 2;
+
+          ctx.fillStyle = sprite.color;
+          ctx.fillRect(x + offset, sprite.y + offset, size, size);
+
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 10px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(sprite.name, x + 40, sprite.y + 75);
+        }
+      });
+
+      return canvas.toDataURL();
+    }
+
+    class AtlasDemo {
+      constructor() {
+        this.atlas = null;
+        this.currentButton = null;
+        this.init();
+      }
+
+      async init() {
+        const atlasImage = createMultiSpriteAtlas();
+
+        // Create sprite atlas
+        this.atlas = new SpriteAtlas('#gameCanvas', atlasImage);
+        await this.atlas.ready();
+
+        console.log('Atlas loaded:', this.atlas.imageWidth, 'x', this.atlas.imageHeight);
+
+        // Define all sprites in the atlas
+        const sprites = [
+          { name: 'Hero', y: 0 },
+          { name: 'Goblin', y: 80 },
+          { name: 'Knight', y: 160 },
+          { name: 'Wizard', y: 240 },
+          { name: 'Dragon', y: 320 }
+        ];
+
+        sprites.forEach(sprite => {
+          this.atlas.define(sprite.name, {
+            x: 0,
+            y: sprite.y,
+            width: 320,
+            height: 80,
+            frames: 4,
+            rows: 1,
+            framerate: 150
+          });
+        });
+
+        // Create buttons
+        this.createButtons();
+
+        // Auto-play first sprite
+        this.playSprite('Hero');
+      }
+
+      createButtons() {
+        const container = document.getElementById('spriteButtons');
+        const sprites = this.atlas.list();
+
+        sprites.forEach(name => {
+          const button = document.createElement('button');
+          button.textContent = `Play ${name}`;
+          button.onclick = () => this.playSprite(name);
+          button.dataset.sprite = name;
+          container.appendChild(button);
+        });
+      }
+
+      async playSprite(name) {
+        // Update button states
+        document.querySelectorAll('.sprite-buttons button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        const button = document.querySelector(`button[data-sprite="${name}"]`);
+        if (button) {
+          button.classList.add('active');
+        }
+
+        // Play sprite
+        const sprite = await this.atlas.play(name);
+        if (sprite) {
+          console.log(`Playing ${name}:`, sprite.getInfo());
+        }
+      }
+    }
+
+    // Global function for stop button
+    window.stopAll = function() {
+      if (window.demo && window.demo.atlas) {
+        window.demo.atlas.stopAll();
+        document.querySelectorAll('.sprite-buttons button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+      }
+    };
+
+    // Start the demo
+    window.demo = new AtlasDemo();
+  </script>
+</body>
+</html>
