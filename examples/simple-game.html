@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Game Example - Sprite Sheet Library</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #gameCanvas {
+      border: 3px solid #16213e;
+      background: #0f3460;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .info {
+      background: #16213e;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 200px;
+      margin: 20px auto;
+    }
+
+    .key {
+      background: #e94560;
+      padding: 15px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .key.center {
+      grid-column: 2;
+    }
+
+    code {
+      background: #0f3460;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Game Example</h1>
+  <canvas id="gameCanvas" width="640" height="480"></canvas>
+
+  <div class="controls">
+    <div class="keys">
+      <div></div>
+      <div class="key">↑</div>
+      <div></div>
+      <div class="key">←</div>
+      <div class="key">↓</div>
+      <div class="key">→</div>
+    </div>
+    <p>Use arrow keys to move the character</p>
+  </div>
+
+  <div class="info">
+    <h3>About This Example</h3>
+    <p>This demonstrates how to use the Sprite Sheet library in a simple game:</p>
+    <ul>
+      <li>Character movement with arrow keys</li>
+      <li>Different animations for each direction</li>
+      <li>Smooth animation transitions</li>
+      <li>Game loop integration</li>
+    </ul>
+    <p>This example uses placeholder graphics. Replace the <code>createPlaceholderSprite()</code> function with your own sprite sheet images!</p>
+  </div>
+
+  <script type="module">
+    import { SpriteSheet } from '../src/SpriteSheet.js';
+
+    // Create a placeholder sprite sheet (replace with your own sprite sheet)
+    function createPlaceholderSprite(color, label) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;  // 4 frames × 80px
+      canvas.height = 80;
+      const ctx = canvas.getContext('2d');
+
+      // Draw 4 animation frames
+      for (let i = 0; i < 4; i++) {
+        const x = i * 80;
+
+        // Draw body (square that changes size for animation)
+        ctx.fillStyle = color;
+        const size = 50 + Math.sin(i * Math.PI / 2) * 10;
+        const offset = (80 - size) / 2;
+        ctx.fillRect(x + offset, offset, size, size);
+
+        // Draw label
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(label, x + 40, 75);
+      }
+
+      return canvas.toDataURL();
+    }
+
+    class Game {
+      constructor() {
+        this.canvas = document.getElementById('gameCanvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.player = {
+          x: this.canvas.width / 2 - 40,
+          y: this.canvas.height / 2 - 40,
+          width: 80,
+          height: 80,
+          speed: 3,
+          direction: 'down'
+        };
+
+        this.keys = {};
+        this.animations = {};
+        this.currentAnimation = null;
+
+        this.init();
+      }
+
+      async init() {
+        // Create sprite sheets for each direction
+        this.animations = {
+          up: new SpriteSheet({
+            canvas: this.canvas,
+            image: createPlaceholderSprite('#3498db', '↑'),
+            frameWidth: 80,
+            frameHeight: 80,
+            frames: 4,
+            framerate: 150,
+            rows: 1
+          }),
+
+          down: new SpriteSheet({
+            canvas: this.canvas,
+            image: createPlaceholderSprite('#e74c3c', '↓'),
+            frameWidth: 80,
+            frameHeight: 80,
+            frames: 4,
+            framerate: 150,
+            rows: 1
+          }),
+
+          left: new SpriteSheet({
+            canvas: this.canvas,
+            image: createPlaceholderSprite('#2ecc71', '←'),
+            frameWidth: 80,
+            frameHeight: 80,
+            frames: 4,
+            framerate: 150,
+            rows: 1
+          }),
+
+          right: new SpriteSheet({
+            canvas: this.canvas,
+            image: createPlaceholderSprite('#f39c12', '→'),
+            frameWidth: 80,
+            frameHeight: 80,
+            frames: 4,
+            framerate: 150,
+            rows: 1
+          })
+        };
+
+        // Wait for all animations to load
+        await Promise.all([
+          this.animations.up.ready(),
+          this.animations.down.ready(),
+          this.animations.left.ready(),
+          this.animations.right.ready()
+        ]);
+
+        // Start with down animation
+        this.currentAnimation = this.animations.down;
+
+        // Setup input
+        this.setupInput();
+
+        // Start game loop
+        this.gameLoop();
+      }
+
+      setupInput() {
+        window.addEventListener('keydown', (e) => {
+          this.keys[e.key] = true;
+          e.preventDefault();
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.keys[e.key] = false;
+          e.preventDefault();
+        });
+      }
+
+      update() {
+        let moving = false;
+        let newDirection = this.player.direction;
+
+        // Handle movement
+        if (this.keys['ArrowUp']) {
+          this.player.y -= this.player.speed;
+          newDirection = 'up';
+          moving = true;
+        }
+        if (this.keys['ArrowDown']) {
+          this.player.y += this.player.speed;
+          newDirection = 'down';
+          moving = true;
+        }
+        if (this.keys['ArrowLeft']) {
+          this.player.x -= this.player.speed;
+          newDirection = 'left';
+          moving = true;
+        }
+        if (this.keys['ArrowRight']) {
+          this.player.x += this.player.speed;
+          newDirection = 'right';
+          moving = true;
+        }
+
+        // Keep player in bounds
+        this.player.x = Math.max(0, Math.min(this.canvas.width - this.player.width, this.player.x));
+        this.player.y = Math.max(0, Math.min(this.canvas.height - this.player.height, this.player.y));
+
+        // Change animation if direction changed
+        if (newDirection !== this.player.direction) {
+          this.player.direction = newDirection;
+          this.currentAnimation.stop();
+          this.currentAnimation = this.animations[newDirection];
+        }
+
+        // Play/stop animation based on movement
+        if (moving && !this.currentAnimation.isPlaying) {
+          this.currentAnimation.play();
+        } else if (!moving && this.currentAnimation.isPlaying) {
+          this.currentAnimation.stop();
+          this.currentAnimation.gotoFrame(0);
+        }
+      }
+
+      draw() {
+        // Clear canvas
+        this.ctx.fillStyle = '#0f3460';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw grid
+        this.ctx.strokeStyle = '#16213e';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < this.canvas.width; i += 40) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(i, 0);
+          this.ctx.lineTo(i, this.canvas.height);
+          this.ctx.stroke();
+        }
+        for (let i = 0; i < this.canvas.height; i += 40) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, i);
+          this.ctx.lineTo(this.canvas.width, i);
+          this.ctx.stroke();
+        }
+
+        // Draw player using current animation
+        this.currentAnimation.drawFrame(
+          this.currentAnimation.currentFrame,
+          this.player.x,
+          this.player.y,
+          this.player.width,
+          this.player.height
+        );
+
+        // Draw position info
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '14px monospace';
+        this.ctx.fillText(`Position: (${Math.round(this.player.x)}, ${Math.round(this.player.y)})`, 10, 20);
+        this.ctx.fillText(`Direction: ${this.player.direction}`, 10, 40);
+        this.ctx.fillText(`Animation: ${this.currentAnimation.isPlaying ? 'Playing' : 'Stopped'}`, 10, 60);
+      }
+
+      gameLoop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.gameLoop());
+      }
+    }
+
+    // Start the game
+    new Game();
+  </script>
+</body>
+</html>
