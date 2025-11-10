@@ -68,6 +68,50 @@
       padding: 2px 6px;
       border-radius: 3px;
     }
+
+    .upload-area {
+      background: #16213e;
+      border: 3px dashed #e94560;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      max-width: 600px;
+    }
+
+    .upload-area:hover {
+      background: #1f2a47;
+      border-color: #ff6b9d;
+    }
+
+    .upload-area.dragging {
+      background: #2a3f5f;
+      border-color: #ff6b9d;
+      transform: scale(1.02);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    button {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #ff6b9d;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
@@ -86,6 +130,16 @@
     <p>Use arrow keys to move the character</p>
   </div>
 
+  <div class="upload-area" id="uploadArea">
+    <h3>🎮 Upload Your Own Sprite Sheet</h3>
+    <p>Drag & drop a sprite sheet image here, or click to browse</p>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="document.getElementById('fileInput').click()">Browse Files</button>
+    <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
+      Supports 4-frame horizontal sprite sheets (one frame per direction)
+    </p>
+  </div>
+
   <div class="info">
     <h3>About This Example</h3>
     <p>This demonstrates how to use the Sprite Sheet library in a simple game:</p>
@@ -94,39 +148,12 @@
       <li>Different animations for each direction</li>
       <li>Smooth animation transitions</li>
       <li>Game loop integration</li>
+      <li>Drag & drop custom sprite sheets</li>
     </ul>
-    <p>This example uses placeholder graphics. Replace the <code>createPlaceholderSprite()</code> function with your own sprite sheet images!</p>
   </div>
 
   <script type="module">
     import { SpriteSheet } from '../src/SpriteSheet.js';
-
-    // Create a placeholder sprite sheet (replace with your own sprite sheet)
-    function createPlaceholderSprite(color, label) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 320;  // 4 frames × 80px
-      canvas.height = 80;
-      const ctx = canvas.getContext('2d');
-
-      // Draw 4 animation frames
-      for (let i = 0; i < 4; i++) {
-        const x = i * 80;
-
-        // Draw body (square that changes size for animation)
-        ctx.fillStyle = color;
-        const size = 50 + Math.sin(i * Math.PI / 2) * 10;
-        const offset = (80 - size) / 2;
-        ctx.fillRect(x + offset, offset, size, size);
-
-        // Draw label
-        ctx.fillStyle = 'white';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(label, x + 40, 75);
-      }
-
-      return canvas.toDataURL();
-    }
 
     class Game {
       constructor() {
@@ -134,10 +161,10 @@
         this.ctx = this.canvas.getContext('2d');
 
         this.player = {
-          x: this.canvas.width / 2 - 40,
-          y: this.canvas.height / 2 - 40,
-          width: 80,
-          height: 80,
+          x: this.canvas.width / 2 - 24,
+          y: this.canvas.height / 2 - 27,
+          width: 48,
+          height: 54,
           speed: 3,
           direction: 'down'
         };
@@ -146,50 +173,83 @@
         this.animations = {};
         this.currentAnimation = null;
 
+        // Default sprite config
+        this.spriteConfig = {
+          url: 'https://opengameart.org/sites/default/files/Green-Cap-Character-16x18.png',
+          frameWidth: 16,
+          frameHeight: 18,
+          frames: 3,
+          rows: 4
+        };
+
         this.init();
+        this.setupFileUpload();
       }
 
       async init() {
-        // Create sprite sheets for each direction
-        this.animations = {
-          up: new SpriteSheet({
-            canvas: this.canvas,
-            image: createPlaceholderSprite('#3498db', '↑'),
-            frameWidth: 80,
-            frameHeight: 80,
-            frames: 4,
-            framerate: 150,
-            rows: 1
-          }),
+        await this.loadSprite(this.spriteConfig.url, this.spriteConfig);
 
+        // Setup input
+        this.setupInput();
+
+        // Start game loop
+        this.gameLoop();
+      }
+
+      async loadSprite(imageUrl, config = this.spriteConfig) {
+        // Destroy old animations if they exist
+        if (this.animations.up) {
+          Object.values(this.animations).forEach(anim => anim.destroy());
+        }
+
+        // Create sprite sheets for each direction (4 rows, 3 frames each)
+        this.animations = {
           down: new SpriteSheet({
             canvas: this.canvas,
-            image: createPlaceholderSprite('#e74c3c', '↓'),
-            frameWidth: 80,
-            frameHeight: 80,
-            frames: 4,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
             framerate: 150,
-            rows: 1
+            rows: config.rows,
+            regionY: 0,
+            regionHeight: config.frameHeight
           }),
 
           left: new SpriteSheet({
             canvas: this.canvas,
-            image: createPlaceholderSprite('#2ecc71', '←'),
-            frameWidth: 80,
-            frameHeight: 80,
-            frames: 4,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
             framerate: 150,
-            rows: 1
+            rows: config.rows,
+            regionY: config.frameHeight,
+            regionHeight: config.frameHeight
           }),
 
           right: new SpriteSheet({
             canvas: this.canvas,
-            image: createPlaceholderSprite('#f39c12', '→'),
-            frameWidth: 80,
-            frameHeight: 80,
-            frames: 4,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
             framerate: 150,
-            rows: 1
+            rows: config.rows,
+            regionY: config.frameHeight * 2,
+            regionHeight: config.frameHeight
+          }),
+
+          up: new SpriteSheet({
+            canvas: this.canvas,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
+            framerate: 150,
+            rows: config.rows,
+            regionY: config.frameHeight * 3,
+            regionHeight: config.frameHeight
           })
         };
 
@@ -201,14 +261,82 @@
           this.animations.right.ready()
         ]);
 
+        // Update player size based on sprite
+        this.player.width = config.frameWidth * 3;
+        this.player.height = config.frameHeight * 3;
+
         // Start with down animation
         this.currentAnimation = this.animations.down;
+      }
 
-        // Setup input
-        this.setupInput();
+      setupFileUpload() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
 
-        // Start game loop
-        this.gameLoop();
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        });
+
+        // Highlight drop area when dragging over
+        ['dragenter', 'dragover'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.add('dragging');
+          });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => {
+            uploadArea.classList.remove('dragging');
+          });
+        });
+
+        // Handle drop
+        uploadArea.addEventListener('drop', (e) => {
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            this.handleFile(files[0]);
+          }
+        });
+
+        // Handle file input
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files.length > 0) {
+            this.handleFile(e.target.files[0]);
+          }
+        });
+
+        // Click to browse
+        uploadArea.addEventListener('click', () => {
+          fileInput.click();
+        });
+      }
+
+      handleFile(file) {
+        if (!file.type.match('image.*')) {
+          alert('Please upload an image file');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const imageUrl = e.target.result;
+
+          // Prompt for sprite dimensions
+          const frameWidth = parseInt(prompt('Frame width in pixels:', '16'));
+          const frameHeight = parseInt(prompt('Frame height in pixels:', '18'));
+          const frames = parseInt(prompt('Frames per row:', '3'));
+          const rows = parseInt(prompt('Number of rows (should be 4 for up/down/left/right):', '4'));
+
+          if (frameWidth && frameHeight && frames && rows) {
+            this.spriteConfig = { url: imageUrl, frameWidth, frameHeight, frames, rows };
+            await this.loadSprite(imageUrl, this.spriteConfig);
+          }
+        };
+        reader.readAsDataURL(file);
       }
 
       setupInput() {
