@@ -521,6 +521,22 @@ npm run dev
 npm run serve
 ```
 
+## Tools
+
+### Sprite Direction Detector
+
+Automatically detect which rows in your sprite sheet correspond to which directions! Uses computer vision to analyze animation frames.
+
+```bash
+# Install Python dependencies
+pip install pillow numpy
+
+# Run detection
+python3 tools/detect_sprite_directions.py sprite.png -w 16 -h 18 -f 3 -r 4
+```
+
+See [tools/README.md](tools/README.md) for detailed usage and algorithm information.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
