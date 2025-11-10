@@ -203,6 +203,7 @@
         }
 
         // Create sprite sheets for each direction (4 rows, 3 frames each)
+        // Each row is a different direction, so we use rows: 1 and specify the regionY
         this.animations = {
           down: new SpriteSheet({
             canvas: this.canvas,
@@ -211,7 +212,7 @@
             frameHeight: config.frameHeight,
             frames: config.frames,
             framerate: 150,
-            rows: config.rows,
+            rows: 1,
             regionY: 0,
             regionHeight: config.frameHeight
           }),
@@ -223,7 +224,7 @@
             frameHeight: config.frameHeight,
             frames: config.frames,
             framerate: 150,
-            rows: config.rows,
+            rows: 1,
             regionY: config.frameHeight,
             regionHeight: config.frameHeight
           }),
@@ -235,7 +236,7 @@
             frameHeight: config.frameHeight,
             frames: config.frames,
             framerate: 150,
-            rows: config.rows,
+            rows: 1,
             regionY: config.frameHeight * 2,
             regionHeight: config.frameHeight
           }),
@@ -247,7 +248,7 @@
             frameHeight: config.frameHeight,
             frames: config.frames,
             framerate: 150,
-            rows: config.rows,
+            rows: 1,
             regionY: config.frameHeight * 3,
             regionHeight: config.frameHeight
           })

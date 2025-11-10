@@ -131,6 +131,11 @@
         <li><strong>Easy Management:</strong> Name and switch between sprites easily</li>
         <li><strong>Efficient:</strong> Single image load for all sprites</li>
       </ul>
+      <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+        Sprites by <a href="https://opengameart.org/users/vander96" target="_blank" style="color: #3498db;">Vander</a>
+        from <a href="https://opengameart.org/content/lots-of-characters" target="_blank" style="color: #3498db;">OpenGameArt.org</a>
+        (CC-BY 4.0 / OGA-BY 3.0)
+      </p>
 
       <h3>Example: Auto-Detecting Dimensions</h3>
       <div class="code-block">// Auto-detect frame size from a 4x3 sprite sheet (12 frames)
@@ -248,41 +253,6 @@ console.log(info);</div>
   <script type="module">
     import { SpriteAtlas } from '../src/SpriteSheet.js';
 
-    // Create placeholder atlas with multiple sprites
-    function createMultiSpriteAtlas() {
-      const canvas = document.createElement('canvas');
-      canvas.width = 320;
-      canvas.height = 400;
-      const ctx = canvas.getContext('2d');
-
-      const sprites = [
-        { name: 'Hero', color: '#3498db', y: 0 },
-        { name: 'Goblin', color: '#e74c3c', y: 80 },
-        { name: 'Knight', color: '#2ecc71', y: 160 },
-        { name: 'Wizard', color: '#9b59b6', y: 240 },
-        { name: 'Dragon', color: '#e67e22', y: 320 }
-      ];
-
-      sprites.forEach(sprite => {
-        // Draw 4 animation frames for each sprite
-        for (let i = 0; i < 4; i++) {
-          const x = i * 80;
-          const size = 60 + Math.sin(i * Math.PI / 2) * 10;
-          const offset = (80 - size) / 2;
-
-          ctx.fillStyle = sprite.color;
-          ctx.fillRect(x + offset, sprite.y + offset, size, size);
-
-          ctx.fillStyle = 'white';
-          ctx.font = 'bold 10px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillText(sprite.name, x + 40, sprite.y + 75);
-        }
-      });
-
-      return canvas.toDataURL();
-    }
-
     class AtlasDemo {
       constructor() {
         this.atlas = null;
@@ -291,7 +261,9 @@ console.log(info);</div>
       }
 
       async init() {
-        const atlasImage = createMultiSpriteAtlas();
+        // Use real sprite atlas from OpenGameArt
+        // Credit: Vander (https://opengameart.org/users/vander96)
+        const atlasImage = 'https://opengameart.org/sites/default/files/luc.png';
 
         // Create sprite atlas
         this.atlas = new SpriteAtlas('#gameCanvas', atlasImage);
@@ -300,23 +272,24 @@ console.log(info);</div>
         console.log('Atlas loaded:', this.atlas.imageWidth, 'x', this.atlas.imageHeight);
 
         // Define all sprites in the atlas
+        // These are approximate positions based on the sprite sheet
         const sprites = [
-          { name: 'Hero', y: 0 },
-          { name: 'Goblin', y: 80 },
-          { name: 'Knight', y: 160 },
-          { name: 'Wizard', y: 240 },
-          { name: 'Dragon', y: 320 }
+          { name: 'Hero', x: 0, y: 0, frames: 3 },
+          { name: 'Mage', x: 0, y: 32, frames: 3 },
+          { name: 'Archer', x: 0, y: 64, frames: 3 },
+          { name: 'Knight', x: 0, y: 96, frames: 3 },
+          { name: 'Elf', x: 0, y: 128, frames: 3 }
         ];
 
         sprites.forEach(sprite => {
           this.atlas.define(sprite.name, {
-            x: 0,
+            x: sprite.x,
             y: sprite.y,
-            width: 320,
-            height: 80,
-            frames: 4,
+            frameWidth: 16,
+            frameHeight: 16,
+            frames: sprite.frames,
             rows: 1,
-            framerate: 150
+            framerate: 200
           });
         });
 
