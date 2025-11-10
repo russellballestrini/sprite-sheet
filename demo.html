@@ -355,8 +355,8 @@ sprite.play();</div>
           await this.sprite.ready();
 
           // Update canvas size to fit sprite with proper scaling
-          // Scale up small sprites for better visibility
-          this.scale = Math.min(8, Math.max(2, Math.floor(200 / Math.max(frameWidth, frameHeight))));
+          // Scale up small sprites for better visibility (max 3x)
+          this.scale = Math.min(3, Math.max(1, Math.floor(64 / Math.max(frameWidth, frameHeight))));
           this.scaledWidth = frameWidth * this.scale;
           this.scaledHeight = frameHeight * this.scale;
 
