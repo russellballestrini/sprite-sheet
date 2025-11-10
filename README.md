@@ -47,6 +47,8 @@ Download the `SpriteSheet.js` file and include it in your project:
 
 ## Quick Start
 
+### Option 1: Specify Exact Dimensions
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -59,7 +61,7 @@ Download the `SpriteSheet.js` file and include it in your project:
   <script type="module">
     import { SpriteSheet } from './src/SpriteSheet.js';
 
-    // Create a sprite sheet
+    // Create a sprite sheet with exact dimensions
     const player = new SpriteSheet({
       canvas: '#gameCanvas',
       image: 'player-sprite.png',
@@ -79,6 +81,30 @@ Download the `SpriteSheet.js` file and include it in your project:
   </script>
 </body>
 </html>
+```
+
+### Option 2: Auto-Detect Dimensions
+
+```html
+<script type="module">
+  import { SpriteSheet } from './src/SpriteSheet.js';
+
+  // Let the library calculate frame dimensions automatically!
+  // For a sprite sheet with 12 frames in a 4x3 grid
+  const player = new SpriteSheet({
+    canvas: '#gameCanvas',
+    image: 'player-sprite.png',
+    frames: 12,     // Total number of frames
+    rows: 4,        // 4 rows
+    columns: 3,     // 3 columns (optional - auto-calculated if omitted)
+    framerate: 100
+    // frameWidth and frameHeight are calculated automatically!
+  });
+
+  await player.ready();
+  console.log(player.getInfo()); // See auto-detected dimensions
+  player.play();
+</script>
 ```
 
 ## API Reference
@@ -164,6 +190,122 @@ sprite.destroy();
 ```
 
 ## Advanced Examples
+
+### Auto-Detecting Dimensions
+
+The library can automatically calculate frame dimensions from your sprite sheet:
+
+```javascript
+// Example 1: Specify rows and columns
+const sprite = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite-sheet.png',  // 256x128 image
+  frames: 8,
+  rows: 2,      // 2 rows
+  columns: 4    // 4 columns
+  // Automatically calculates: frameWidth=64, frameHeight=64
+});
+
+// Example 2: Let it calculate columns
+const sprite2 = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite-sheet.png',
+  frames: 12,
+  rows: 3       // columns auto-calculated as 4
+});
+
+// Example 3: Get dimensions when loaded
+const sprite3 = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'sprite.png',
+  frames: 6,
+  rows: 2,
+  onImageLoad: (info) => {
+    console.log('Detected dimensions:', info);
+    // { imageWidth, imageHeight, frameWidth, frameHeight, rows, columns }
+  }
+});
+```
+
+### Sprite Atlas (Multiple Sprites on One Sheet)
+
+Perfect for games with many characters/monsters on a single texture atlas:
+
+```javascript
+import { SpriteAtlas } from './src/SpriteSheet.js';
+
+// Create atlas from a single image containing all game sprites
+const atlas = new SpriteAtlas('#canvas', 'game-atlas.png');
+await atlas.ready();
+
+// Define different character regions in the atlas
+atlas
+  .define('player-idle', {
+    x: 0, y: 0,           // Position in atlas
+    width: 192,           // Width of this sprite region
+    height: 32,           // Height of this sprite region
+    frames: 6,            // Number of frames
+    rows: 1,
+    framerate: 100
+  })
+  .define('player-walk', {
+    x: 0, y: 32,          // Below idle animation
+    width: 256,
+    height: 32,
+    frames: 8,
+    rows: 1
+  })
+  .define('enemy-goblin', {
+    x: 0, y: 64,
+    width: 128,
+    height: 32,
+    frames: 4,
+    rows: 1
+  })
+  .define('enemy-dragon', {
+    x: 0, y: 96,
+    width: 320,
+    height: 64,
+    frames: 10,
+    rows: 1,
+    framerate: 80
+  });
+
+// Play any sprite by name
+await atlas.play('player-idle');
+
+// Switch to a different sprite
+await atlas.play('enemy-goblin');
+
+// Get a specific sprite for manual control
+const playerWalk = atlas.get('player-walk');
+playerWalk.play();
+
+// List all defined sprites
+console.log(atlas.list()); // ['player-idle', 'player-walk', 'enemy-goblin', 'enemy-dragon']
+
+// Stop all animations
+atlas.stopAll();
+```
+
+### Sprite Regions (Part of a Larger Atlas)
+
+Extract a specific region from a larger sprite sheet:
+
+```javascript
+// Use only a specific region of a large atlas
+const sprite = new SpriteSheet({
+  canvas: '#canvas',
+  image: 'mega-atlas.png',    // Large 2048x2048 atlas
+  regionX: 512,                // Start at x=512
+  regionY: 256,                // Start at y=256
+  regionWidth: 256,            // Use 256px wide
+  regionHeight: 64,            // Use 64px tall
+  frames: 8,
+  rows: 1
+  // Frames will be extracted from the specified region
+});
+```
 
 ### Multiple Animations
 
