@@ -272,7 +272,8 @@ console.log(info);</div>
         console.log('Atlas loaded:', this.atlas.imageWidth, 'x', this.atlas.imageHeight);
 
         // Define all sprites in the atlas
-        // These are approximate positions based on the sprite sheet
+        // NOTE: These positions are estimates and may need adjustment
+        // Sprite sheet layouts vary - verify x, y, frameWidth, frameHeight for each sprite
         const sprites = [
           { name: 'Hero', x: 0, y: 0, frames: 3 },
           { name: 'Mage', x: 0, y: 32, frames: 3 },

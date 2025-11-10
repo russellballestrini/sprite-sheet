@@ -204,6 +204,7 @@
 
         // Create sprite sheets for each direction (4 rows, 3 frames each)
         // Each row is a different direction, so we use rows: 1 and specify the regionY
+        // Green Cap Character layout: down (row 0), right (row 1), up (row 2), left (row 3)
         this.animations = {
           down: new SpriteSheet({
             canvas: this.canvas,
@@ -213,19 +214,7 @@
             frames: config.frames,
             framerate: 150,
             rows: 1,
-            regionY: 0,
-            regionHeight: config.frameHeight
-          }),
-
-          left: new SpriteSheet({
-            canvas: this.canvas,
-            image: imageUrl,
-            frameWidth: config.frameWidth,
-            frameHeight: config.frameHeight,
-            frames: config.frames,
-            framerate: 150,
-            rows: 1,
-            regionY: config.frameHeight,
+            regionY: 0,  // Row 0: down
             regionHeight: config.frameHeight
           }),
 
@@ -237,7 +226,7 @@
             frames: config.frames,
             framerate: 150,
             rows: 1,
-            regionY: config.frameHeight * 2,
+            regionY: config.frameHeight,  // Row 1: right
             regionHeight: config.frameHeight
           }),
 
@@ -249,7 +238,19 @@
             frames: config.frames,
             framerate: 150,
             rows: 1,
-            regionY: config.frameHeight * 3,
+            regionY: config.frameHeight * 2,  // Row 2: up
+            regionHeight: config.frameHeight
+          }),
+
+          left: new SpriteSheet({
+            canvas: this.canvas,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
+            framerate: 150,
+            rows: 1,
+            regionY: config.frameHeight * 3,  // Row 3: left
             regionHeight: config.frameHeight
           })
         };
@@ -333,6 +334,12 @@
           const rows = parseInt(prompt('Number of rows (should be 4 for up/down/left/right):', '4'));
 
           if (frameWidth && frameHeight && frames && rows) {
+            alert('NOTE: Sprite sheet row order varies by source!\n\n' +
+                  'Green Cap default: down, right, up, left\n' +
+                  'Common layouts:\n' +
+                  '- down, left, right, up\n' +
+                  '- down, up, left, right\n\n' +
+                  'If animations look wrong, you may need to adjust the row mapping in the code.');
             this.spriteConfig = { url: imageUrl, frameWidth, frameHeight, frames, rows };
             await this.loadSprite(imageUrl, this.spriteConfig);
           }
