@@ -19,6 +19,20 @@ A modern, lightweight HTML5 sprite sheet animation library for games and interac
 
 Check out the live demo: [View Demo](https://russellballestrini.github.io/sprite-sheet/)
 
+### Running the Demo Locally
+
+**Important:** To run the demos locally, you must use a web server due to CORS restrictions with ES6 modules. Simply opening the HTML files in your browser won't work.
+
+```bash
+# Start a local web server
+npm run serve
+```
+
+Then open your browser to:
+- http://localhost:8000/demo.html - Main demo
+- http://localhost:8000/examples/simple-game.html - Simple game example
+- http://localhost:8000/examples/sprite-atlas.html - Sprite atlas example
+
 ## Installation
 
 ### Via NPM (when published)
