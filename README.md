@@ -24,8 +24,8 @@ Check out the live demo: [View Demo](https://russellballestrini.github.io/sprite
 **Important:** To run the demos locally, you must use a web server due to CORS restrictions with ES6 modules. Simply opening the HTML files in your browser won't work.
 
 ```bash
-# Start a local web server
-npm run serve
+# Start local development server
+make serve
 ```
 
 Then open your browser to:
@@ -34,20 +34,6 @@ Then open your browser to:
 - http://localhost:8000/examples/sprite-atlas.html - Sprite atlas example
 
 ## Installation
-
-### Via NPM (when published)
-
-```bash
-npm install @your-org/sprite-sheet
-```
-
-### Via CDN
-
-```html
-<script type="module">
-  import { SpriteSheet } from 'https://cdn.jsdelivr.net/npm/@your-org/sprite-sheet/src/SpriteSheet.js';
-</script>
-```
 
 ### Direct Download
 
@@ -503,25 +489,28 @@ Great for learning game development, HTML5 canvas, and animation principles.
 - Safari 11+
 - Opera 48+
 
-For older browsers, use the UMD build after running `npm run build`.
-
-## Building
+## Development
 
 ```bash
-# Install dependencies
-npm install
+# Start development server
+make serve
 
-# Build all formats (ES, UMD, CommonJS)
-npm run build
+# Analyze sprite sheet directions
+make detect-directions IMAGE=sprite.png
 
-# Development mode with watch
-npm run dev
+# Detect frame dimensions
+make detect-grid IMAGE=sprite.png
 
-# Start local server for demo
-npm run serve
+# Group similar sprites
+make group-sprites IMAGE=atlas.png
+
+# Show all available commands
+make help
 ```
 
 ## Tools
+
+Small, focused utilities following Unix philosophy - each tool does one thing well.
 
 ### Sprite Direction Detector
 

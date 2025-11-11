@@ -5,3 +5,6 @@ dist/
 .env
 .vscode/
 .idea/
+tools/venv/
+__pycache__/
+*.pyc

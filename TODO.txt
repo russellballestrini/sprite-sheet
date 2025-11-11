@@ -1,0 +1,2 @@
+- Touch up 48x64 sprites.
+- Create 32x48 versions.

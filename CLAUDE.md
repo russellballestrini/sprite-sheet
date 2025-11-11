@@ -1,5 +1,16 @@
 # Claude Code Guidelines for Sprite Sheet Library
 
+## Project Overview
+
+Modern HTML5 sprite sheet animation library with **zero dependencies**, ES6+ modules, and Unix philosophy command-line tools for sprite analysis.
+
+### Core Philosophy
+- **Zero dependencies** for the JavaScript library
+- **Unix philosophy** for CLI tools: small, focused, composable
+- **Python virtual environment** for tool isolation
+- **Makefile-driven** workflow (no npm for tools)
+- **Data-driven** improvement via ground truth corpus
+
 ## CSS Layout Standards
 
 ### Use CSS Grid Exclusively
@@ -80,28 +91,73 @@ body {
 ```
 sprite-sheet/
 ├── src/
-│   └── SpriteSheet.js       # Core library
+│   └── SpriteSheet.js              # Core library (zero dependencies)
 ├── examples/
-│   ├── simple-game.html     # Game example with arrow key controls
-│   └── sprite-atlas.html    # Multi-sprite atlas example
-├── demo.html                # Main interactive demo
-├── index.html               # Entry point (same as demo.html)
-├── index-legacy.html        # Legacy version
-├── server.py                # Development server with proper MIME types
-└── CLAUDE.md                # This file
+│   ├── simple-game.html            # Game example (arrow keys + WASD)
+│   └── sprite-atlas.html           # Multi-sprite atlas example
+├── tools/                          # Unix philosophy CLI tools
+│   ├── venv/                       # Python virtual environment (gitignored)
+│   ├── detect_grid.py              # Auto-detect frame dimensions
+│   ├── detect_sprite_directions.py # Detect sprite facing directions
+│   ├── group_sprites.py            # Group similar sprites by visual similarity
+│   ├── benchmark.py                # Accuracy benchmark against corpus
+│   ├── corpus.json                 # Ground truth dataset for testing
+│   ├── requirements.txt            # Python dependencies
+│   └── README.md                   # Tool documentation
+├── demo.html                       # Main interactive demo
+├── index.html                      # Entry point (same as demo.html)
+├── server.py                       # Development server with proper MIME types
+├── Makefile                        # Unix-style build system
+└── CLAUDE.md                       # This file
 ```
 
-## Development Server
+## Development Workflow
 
-Always use the custom Python server to serve files locally:
+### Running the Development Server
 
 ```bash
-npm run serve
-# or
+make serve
+# or directly:
 python3 server.py
 ```
 
 **Why?** The custom server sets proper MIME types for JavaScript modules, preventing CORS errors that occur with `file://` protocol or basic HTTP servers.
+
+### Setting Up Python Tools
+
+**First time setup:**
+```bash
+make install-tools    # Creates venv, installs pillow + numpy
+make install-ml       # Optional: installs OpenCV, PyTorch CPU, Transformers
+```
+
+**Tools are isolated in `tools/venv/`** - never install to system Python!
+
+### Using the Tools
+
+All tools are invoked via Makefile for consistency:
+
+```bash
+# Auto-detect sprite grid dimensions
+make detect-grid IMAGE=sprite.png
+
+# Detect animation directions (up, down, left, right)
+make detect-directions IMAGE=sprite.png ARGS='-w 16 -H 18 -f 3 -r 4'
+make detect-directions IMAGE=sprite.png ARGS='-w 16 -H 18 -f 3 -r 4 --ml'
+
+# Group similar sprites in atlas
+make group-sprites IMAGE=atlas.png ARGS='-w 32 -h 32'
+
+# Run accuracy benchmark
+make benchmark
+
+# Test all tools
+make test-tools
+
+# Clean up
+make clean       # Remove temp files
+make clean-all   # Remove temp files + venv
+```
 
 ## Code Style
 
@@ -148,10 +204,54 @@ The library uses modern JavaScript and CSS:
 
 Target browsers: Chrome/Edge 61+, Firefox 60+, Safari 11+, Opera 48+
 
+## Core Algorithms
+
+### Grid Detection (`detect_grid.py`)
+- Edge detection (vertical/horizontal lines)
+- Autocorrelation for repeating patterns
+- Peak analysis for frame boundaries
+- Padding detection
+
+### Direction Detection (`detect_sprite_directions.py`)
+
+**Traditional Computer Vision**
+- Facing direction analysis (top vs bottom pixel density)
+- Horizontal asymmetry detection (left vs right mass)
+- Motion analysis (center of mass tracking)
+
+**OpenCV Enhanced**
+- Multi-feature ensemble (HOG, spatial moments, edge detection)
+- Automatic upscaling for small sprites (2-4x)
+- Feature separation confidence scoring
+
+**CLIP Vision Model** (Key Breakthrough)
+- **Analyzes single frames** to determine "which way is this character facing?"
+- Compares each frame against semantic descriptions:
+  - "a game character viewed from above showing the top and front" (down)
+  - "a game character viewed from above showing the back" (up)
+  - "a game character shown from the side facing left/right"
+- **Automatically upscales tiny sprites** (< 64px) for better semantic understanding
+- **Averages scores across all animation frames** per row for robustness
+- Works on **visual facing direction**, not animation motion patterns
+- Currently achieves 50% accuracy on 16x18 Green Cap sprite (left/right correct)
+
+### Sprite Grouping (`group_sprites.py`)
+- Perceptual hashing for visual fingerprints
+- Hamming distance for similarity measurement
+- Clustering to identify animation sequences
+
+### Accuracy Benchmarking (`benchmark.py`)
+- Per-direction accuracy scoring (not just overall)
+- Tests all methods (traditional, OpenCV, CLIP)
+- Downloads missing test sprites automatically
+- Ground truth corpus in `tools/corpus.json`
+
 ## Contributing
 
 When making changes:
 1. Use CSS Grid exclusively for layouts
-2. Test with `npm run serve`
-3. Ensure responsive behavior
-4. Update this file if adding new patterns or guidelines
+2. Test with `make serve` (not npm)
+3. Use Makefile for all tool operations
+4. Never install Python packages to system (use venv)
+5. Ensure responsive behavior
+6. Update this file if adding new patterns or guidelines

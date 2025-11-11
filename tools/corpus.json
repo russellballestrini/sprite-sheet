@@ -1,0 +1,159 @@
+{
+  "description": "Ground truth corpus for sprite direction detection",
+  "version": "1.1",
+  "sprites": [
+    {
+      "name": "Green-Cap-Character",
+      "file": "tools/corpus/Green-Cap-Character-16x18.png",
+      "url": "https://opengameart.org/sites/default/files/Green-Cap-Character-16x18.png",
+      "source_page": "https://opengameart.org/content/green-cap-character-16x18",
+      "author": "isaiah658",
+      "license": "CC0 (Public Domain)",
+      "frame_width": 16,
+      "frame_height": 18,
+      "frames_per_row": 3,
+      "rows": 4,
+      "ground_truth": {
+        "down": 0,
+        "up": 1,
+        "left": 2,
+        "right": 3
+      },
+      "notes": "Non-standard layout. Top-down perspective makes directions subtle.",
+      "verified": true,
+      "verified_method": "Tested in simple-game.html"
+    },
+    {
+      "name": "Gnome-Male-Green-Hat",
+      "file": "tools/corpus/PNG/24x32/gnome-m-green_hat-NESW.png",
+      "url": "https://opengameart.org/sites/default/files/gnome-1.4.zip",
+      "source_page": "https://opengameart.org/node/78045",
+      "author": "AntumDeluge",
+      "license": "CC0 (Public Domain)",
+      "frame_width": 24,
+      "frame_height": 32,
+      "frames_per_row": 3,
+      "rows": 4,
+      "ground_truth": {
+        "down": 2,
+        "up": 0,
+        "left": 3,
+        "right": 1
+      },
+      "notes": "Standard NESW layout (North/East/South/West). Upscaled from Green Cap 16x18. Clear directional distinctions.",
+      "verified": true,
+      "verified_method": "Visual inspection - NESW filename indicates layout"
+    },
+    {
+      "name": "Gnome-Female-Green-Hat",
+      "file": "tools/corpus/PNG/24x32/gnome-f-green_hat-NESW.png",
+      "url": "https://opengameart.org/sites/default/files/gnome-1.4.zip",
+      "source_page": "https://opengameart.org/node/78045",
+      "author": "AntumDeluge",
+      "license": "CC0 (Public Domain)",
+      "frame_width": 24,
+      "frame_height": 32,
+      "frames_per_row": 3,
+      "rows": 4,
+      "ground_truth": {
+        "down": 2,
+        "up": 0,
+        "left": 3,
+        "right": 1
+      },
+      "notes": "Standard NESW layout. Female gnome variant with green hat.",
+      "verified": true,
+      "verified_method": "Visual inspection - NESW filename indicates layout"
+    },
+    {
+      "name": "Gnome-Soldier",
+      "file": "tools/corpus/PNG/24x32/gnome_soldier-NESW.png",
+      "url": "https://opengameart.org/sites/default/files/gnome-1.4.zip",
+      "source_page": "https://opengameart.org/node/78045",
+      "author": "AntumDeluge",
+      "license": "CC0 (Public Domain)",
+      "frame_width": 24,
+      "frame_height": 32,
+      "frames_per_row": 3,
+      "rows": 4,
+      "ground_truth": {
+        "down": 2,
+        "up": 0,
+        "left": 3,
+        "right": 1
+      },
+      "notes": "Standard NESW layout. Soldier variant with armor/weapon.",
+      "verified": true,
+      "verified_method": "Visual inspection - NESW filename indicates layout"
+    },
+    {
+      "name": "Chicken-White",
+      "file": "tools/corpus/Chicken_Sprite_Sheet.png",
+      "url": "https://opengameart.org/content/lpc-style-farm-animals",
+      "source_page": "https://opengameart.org/content/lpc-style-farm-animals",
+      "author": "daneeklu",
+      "license": "CC-BY 3.0 / GPL 3.0",
+      "frame_width": 32,
+      "frame_height": 32,
+      "frames_per_row": 4,
+      "rows": 4,
+      "ground_truth": {
+        "down": 0,
+        "up": 3,
+        "left": 1,
+        "right": 2
+      },
+      "notes": "LPC-style chicken sprite. Row 0=Down (chest visible), Row 1=Left, Row 2=Right, Row 3=Up (tail visible).",
+      "verified": true,
+      "verified_method": "Visual inspection of directional features"
+    },
+    {
+      "name": "Chicken-Light-Brown",
+      "file": "tools/corpus/Chicken_Sprite_Sheet_Light_Brown.png",
+      "url": "https://opengameart.org/content/lpc-style-farm-animals",
+      "source_page": "https://opengameart.org/content/lpc-style-farm-animals",
+      "author": "daneeklu",
+      "license": "CC-BY 3.0 / GPL 3.0",
+      "frame_width": 32,
+      "frame_height": 32,
+      "frames_per_row": 4,
+      "rows": 4,
+      "ground_truth": {
+        "down": 0,
+        "up": 3,
+        "left": 1,
+        "right": 2
+      },
+      "notes": "LPC-style chicken sprite (brown variant). Same layout as white chicken.",
+      "verified": true,
+      "verified_method": "Visual inspection of directional features"
+    },
+    {
+      "name": "Hero-16x16",
+      "file": "tools/corpus/Hero-16x16.png",
+      "url": "https://opengameart.org/content/zelda-like-tilesets-and-sprites",
+      "source_page": "https://opengameart.org/content/zelda-like-tilesets-and-sprites",
+      "author": "ArMM1998 (based on work by Cough-E)",
+      "license": "CC0 (Public Domain)",
+      "frame_width": 16,
+      "frame_height": 16,
+      "frames_per_row": 8,
+      "rows": 4,
+      "ground_truth": {
+        "down": 0,
+        "up": 3,
+        "left": 1,
+        "right": 2
+      },
+      "notes": "Zelda-style hero sprite. 8 frames per direction. Row 0=Down (face visible), Row 1=Left, Row 2=Right, Row 3=Up (back visible).",
+      "verified": true,
+      "verified_method": "Visual inspection of directional features"
+    }
+  ],
+  "notes": [
+    "All sprites are from OpenGameArt.org and properly attributed.",
+    "Ground truth values indicate row indices (0-based) for each direction.",
+    "Standard NESW layout: Row 0=Up, Row 1=Right, Row 2=Down, Row 3=Left",
+    "Green Cap uses non-standard layout: Row 0=Down, Row 1=Up, Row 2=Left, Row 3=Right"
+  ]
+}

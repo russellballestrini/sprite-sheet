@@ -121,13 +121,13 @@
   <div class="controls">
     <div class="keys">
       <div></div>
-      <div class="key">↑</div>
+      <div class="key">↑ W</div>
       <div></div>
-      <div class="key">←</div>
-      <div class="key">↓</div>
-      <div class="key">→</div>
+      <div class="key">← A</div>
+      <div class="key">↓ S</div>
+      <div class="key">→ D</div>
     </div>
-    <p>Use arrow keys to move the character</p>
+    <p>Use arrow keys or WASD to move the character</p>
   </div>
 
   <div class="upload-area" id="uploadArea">
@@ -204,7 +204,7 @@
 
         // Create sprite sheets for each direction (4 rows, 3 frames each)
         // Each row is a different direction, so we use rows: 1 and specify the regionY
-        // Green Cap Character layout: down (row 0), right (row 1), up (row 2), left (row 3)
+        // Green Cap Character layout: down (row 0), up (row 1), left (row 2), right (row 3)
         this.animations = {
           down: new SpriteSheet({
             canvas: this.canvas,
@@ -218,18 +218,6 @@
             regionHeight: config.frameHeight
           }),
 
-          right: new SpriteSheet({
-            canvas: this.canvas,
-            image: imageUrl,
-            frameWidth: config.frameWidth,
-            frameHeight: config.frameHeight,
-            frames: config.frames,
-            framerate: 150,
-            rows: 1,
-            regionY: config.frameHeight,  // Row 1: right
-            regionHeight: config.frameHeight
-          }),
-
           up: new SpriteSheet({
             canvas: this.canvas,
             image: imageUrl,
@@ -238,7 +226,7 @@
             frames: config.frames,
             framerate: 150,
             rows: 1,
-            regionY: config.frameHeight * 2,  // Row 2: up
+            regionY: config.frameHeight,  // Row 1: up
             regionHeight: config.frameHeight
           }),
 
@@ -250,7 +238,19 @@
             frames: config.frames,
             framerate: 150,
             rows: 1,
-            regionY: config.frameHeight * 3,  // Row 3: left
+            regionY: config.frameHeight * 2,  // Row 2: left
+            regionHeight: config.frameHeight
+          }),
+
+          right: new SpriteSheet({
+            canvas: this.canvas,
+            image: imageUrl,
+            frameWidth: config.frameWidth,
+            frameHeight: config.frameHeight,
+            frames: config.frames,
+            framerate: 150,
+            rows: 1,
+            regionY: config.frameHeight * 3,  // Row 3: right
             regionHeight: config.frameHeight
           })
         };
@@ -363,23 +363,23 @@
         let moving = false;
         let newDirection = this.player.direction;
 
-        // Handle movement
-        if (this.keys['ArrowUp']) {
+        // Handle movement (Arrow keys and WASD)
+        if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
           this.player.y -= this.player.speed;
           newDirection = 'up';
           moving = true;
         }
-        if (this.keys['ArrowDown']) {
+        if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
           this.player.y += this.player.speed;
           newDirection = 'down';
           moving = true;
         }
-        if (this.keys['ArrowLeft']) {
+        if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
           this.player.x -= this.player.speed;
           newDirection = 'left';
           moving = true;
         }
-        if (this.keys['ArrowRight']) {
+        if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
           this.player.x += this.player.speed;
           newDirection = 'right';
           moving = true;

@@ -1,0 +1,19 @@
+# Sprite Sheet Tools - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core dependencies (required)
+pillow>=10.0.0
+numpy>=1.24.0
+
+# Optional: OpenCV for advanced computer vision features
+# Enables gradient-based orientation detection
+opencv-python>=4.8.0
+
+# Optional: Transformers + PyTorch for CLIP model
+# Enables semantic understanding of sprite directions using AI
+# Note: This will download ~500MB of models on first use
+transformers>=4.30.0
+torch>=2.0.0
+
+# Optional: Accelerate for faster model loading
+accelerate>=0.20.0
