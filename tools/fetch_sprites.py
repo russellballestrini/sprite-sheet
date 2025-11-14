@@ -26,11 +26,17 @@ class SpriteFetcher:
         self.metadata_dir = self.corpus_dir / "metadata"
         self.target_count = target_count
         self.downloaded_count = 0
+        self.skipped_count = 0
         self.failed_count = 0
+        self.last_processed = None
 
         # Create directories if they don't exist
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_dir.mkdir(parents=True, exist_ok=True)
+
+        # Count existing files
+        self.existing_count = len(list(self.raw_dir.glob('*')))
+        print(f"Found {self.existing_count} existing sprites in corpus")
 
     def download_file(self, url: str, dest_path: Path, timeout: int = 30) -> bool:
         """Download a file from URL to destination path"""
@@ -116,12 +122,16 @@ class SpriteFetcher:
             dataset = load_dataset('nyuuzyou/OpenGameArt-CC0', split='2d_art', streaming=True)
 
             count = 0
+            last_processed_title = None
             for item in dataset:
                 if max_items and count >= max_items:
                     break
 
-                if self.downloaded_count >= self.target_count:
-                    print(f"\nReached target count of {self.target_count} sprites!")
+                # Check if we have enough total sprites (existing + newly downloaded)
+                total_sprites = self.existing_count + self.downloaded_count
+                if total_sprites >= self.target_count:
+                    print(f"\n✓ Reached target count of {self.target_count} sprites!")
+                    print(f"   (Existing: {self.existing_count}, Newly downloaded: {self.downloaded_count})")
                     break
 
                 # Check if this is likely a sprite sheet
@@ -131,7 +141,11 @@ class SpriteFetcher:
                 # Generate unique ID
                 sprite_id = self.generate_id(item.get('url', ''), item.get('title', ''))
 
-                print(f"\n[{self.downloaded_count + 1}] Processing: {item.get('title', 'Untitled')}")
+                title = item.get('title', 'Untitled')
+                last_processed_title = title
+
+                total_sprites = self.existing_count + self.downloaded_count
+                print(f"\n[{total_sprites + 1}/{self.target_count}] Processing: {title}")
 
                 # Download the first image file we find
                 files = item.get('files', [])
@@ -154,7 +168,8 @@ class SpriteFetcher:
 
                     # Skip if already downloaded
                     if dest_path.exists():
-                        print(f"  Already exists: {dest_path.name}")
+                        print(f"  ⏭ Already exists: {dest_path.name}")
+                        self.skipped_count += 1
                         downloaded = True
                         break
 
@@ -193,6 +208,9 @@ class SpriteFetcher:
                 # Rate limiting
                 time.sleep(0.5)
 
+            # Store last processed title for summary
+            self.last_processed = last_processed_title
+
         except Exception as e:
             print(f"Error fetching from Hugging Face: {e}")
 
@@ -214,12 +232,20 @@ class SpriteFetcher:
     def print_summary(self) -> None:
         """Print summary of fetching operation"""
         print("\n" + "="*60)
-        print("SUMMARY")
+        print("DOWNLOAD SUMMARY")
         print("="*60)
-        print(f"Total downloaded: {self.downloaded_count}")
-        print(f"Total failed: {self.failed_count}")
-        print(f"Target count: {self.target_count}")
-        print(f"Output directory: {self.corpus_dir.absolute()}")
+        print(f"Existing sprites:     {self.existing_count}")
+        print(f"Newly downloaded:     {self.downloaded_count}")
+        print(f"Skipped (already had): {self.skipped_count}")
+        print(f"Failed:               {self.failed_count}")
+        print(f"---")
+        total_sprites = self.existing_count + self.downloaded_count
+        print(f"Total sprites:        {total_sprites}/{self.target_count}")
+
+        if self.last_processed:
+            print(f"\nLast item processed:  {self.last_processed}")
+
+        print(f"\nOutput directory: {self.corpus_dir.absolute()}")
         print(f"  - Raw sprites: {self.raw_dir}")
         print(f"  - Metadata: {self.metadata_dir}")
 
