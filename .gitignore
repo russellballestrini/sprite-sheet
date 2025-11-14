@@ -7,8 +7,11 @@ dist/
 .idea/
 
 # Sprite corpus (large files - not committed to git)
-corpus/raw/
-corpus/metadata/
-corpus/train/
-corpus/test/
+corpus/
+tools/corpus/
+__pycache__/
+*.pyc
+venv/
+tools/venv/
+clip_models/
 corpus_fetch.log
