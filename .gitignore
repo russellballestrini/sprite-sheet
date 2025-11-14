@@ -5,3 +5,13 @@ dist/
 .env
 .vscode/
 .idea/
+
+# Sprite corpus (large files - not committed to git)
+corpus/
+tools/corpus/
+__pycache__/
+*.pyc
+venv/
+tools/venv/
+clip_models/
+corpus_fetch.log
